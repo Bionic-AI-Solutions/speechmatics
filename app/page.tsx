@@ -1,12 +1,15 @@
 import { fetchPersonas } from "@speechmatics/flow-client-react";
-import { Controls } from "@/components/Controls";
-import { Status } from "@/components/Status";
-import { TranscriptView } from "@/components/TranscriptView";
+import { VoiceBotWidget } from "@/components/VoiceBotWidget";
 import { Providers } from "./providers";
+import { loadPersonas, Persona } from "@/lib/personaLoader";
 
 export default async function Home() {
+  // Load custom personas from JSON files
+  const customPersonas = await loadPersonas();
+
+  // Also load default personas from Speechmatics
   const personasData = await fetchPersonas();
-  const personas = Object.entries(personasData).map(([id, persona]) => ({
+  const defaultPersonas = Object.entries(personasData).map(([id, persona]) => ({
     id,
     name: persona.name,
     description: persona.description,
@@ -15,47 +18,17 @@ export default async function Home() {
     avatar: persona.avatar,
   }));
 
+  // Combine custom and default personas, with custom ones taking priority
+  const allPersonas = [...customPersonas, ...defaultPersonas];
+  const uniquePersonas = allPersonas.filter((persona, index, self) =>
+    index === self.findIndex(p => p.id === persona.id)
+  );
+
   return (
-    <main className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            🎤 Voice Bot App
-          </h1>
-          <p className="text-lg text-gray-600">
-            Powered by Speechmatics Flow - Have natural conversations with AI
-          </p>
-        </div>
-        
-        <Providers>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-200px)]">
-            {/* Controls and Status */}
-            <div className="lg:col-span-1 space-y-6">
-              <Controls personas={personas} />
-              <Status />
-            </div>
-            
-            {/* Transcript View */}
-            <div className="lg:col-span-2">
-              <TranscriptView />
-            </div>
-          </div>
-        </Providers>
-        
-        <footer className="mt-8 text-center text-gray-500 text-sm">
-          <p>
-            Built with Next.js and Speechmatics Flow | 
-            <a 
-              href="https://docs.speechmatics.com/voice-agents-flow" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-blue-600 hover:underline ml-1"
-            >
-              Documentation
-            </a>
-          </p>
-        </footer>
-      </div>
+    <main className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
+      <Providers>
+        <VoiceBotWidget personas={uniquePersonas} />
+      </Providers>
     </main>
   );
 }
