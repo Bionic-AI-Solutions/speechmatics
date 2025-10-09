@@ -1,14 +1,12 @@
 {
-  "name": "voice-bot-app",
+  "name": "nextjs-flow-guide",
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "dev": "next dev --turbopack",
+    "build": "next build --turbopack",
     "start": "next start",
-    "lint": "eslint",
-    "setup": "./setup.sh",
-    "type-check": "tsc --noEmit"
+    "lint": "eslint"
   },
   "dependencies": {
     "@speechmatics/auth": "^0.1.0",
@@ -17,6 +15,7 @@
     "@speechmatics/flow-client-react": "^0.2.1",
     "@speechmatics/use-flow-transcript": "^0.0.1-rc.0",
     "@speechmatics/web-pcm-player-react": "^2.0.0",
+    "dotenv": "^17.2.3",
     "next": "15.5.4",
     "react": "19.1.0",
     "react-dom": "19.1.0"
