@@ -60,29 +60,40 @@ export function Controls({
     async (e) => {
       e.preventDefault();
 
-      if (!audioContext) {
-        throw new Error("Audio context not initialized!");
+      try {
+        if (!audioContext) {
+          console.error("Audio context not initialized!");
+          return;
+        }
+
+        if (socketState === "open" && sessionId) {
+          stopRecording();
+          endConversation();
+          return;
+        }
+
+        const formData = new FormData(e.target as HTMLFormElement);
+
+        const personaId = formData.get("personaId")?.toString();
+        if (!personaId) {
+          console.error("No persona selected!");
+          return;
+        }
+
+        const deviceId = formData.get("deviceId")?.toString();
+        if (!deviceId) {
+          console.error("No device selected!");
+          return;
+        }
+
+        await startSession({
+          personaId,
+          recordingSampleRate: audioContext.sampleRate,
+        });
+        await startRecording({ deviceId });
+      } catch (error) {
+        console.error("Error starting conversation:", error);
       }
-
-      if (socketState === "open" && sessionId) {
-        stopRecording();
-        endConversation();
-        return;
-      }
-
-      const formData = new FormData(e.target as HTMLFormElement);
-
-      const personaId = formData.get("personaId")?.toString();
-      if (!personaId) throw new Error("No persona selected!");
-
-      const deviceId = formData.get("deviceId")?.toString();
-      if (!deviceId) throw new Error("No device selected!");
-
-      await startSession({
-        personaId,
-        recordingSampleRate: audioContext.sampleRate,
-      });
-      await startRecording({ deviceId });
     },
     [
       startSession,
