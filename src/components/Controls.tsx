@@ -126,8 +126,8 @@ export function Controls({
 
   return (
     <section>
-      <h3>Controls</h3>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-2">
+      <h3>Voice Controls</h3>
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <div className="grid grid-cols-2 gap-4">
           <MicrophoneSelect disabled={disableSelects} />
           <select name="personaId" disabled={disableSelects}>
@@ -136,8 +136,14 @@ export function Controls({
             ))}
           </select>
         </div>
-        <div className="flex gap-2">
+        
+        {/* Prominent Action Button */}
+        <div className="flex justify-center">
           <ActionButton />
+        </div>
+        
+        {/* Mute Button */}
+        <div className="flex justify-center">
           <MuteMicrophoneButton />
         </div>
       </form>
@@ -148,14 +154,17 @@ export function Controls({
 function ActionButton() {
   const { socketState, sessionId } = useFlow();
 
+  // Debug logging
+  console.log('ActionButton state:', { socketState, sessionId, running: socketState === "open" && sessionId });
+
   if (
     socketState === "connecting" ||
     socketState === "closing" ||
     (socketState === "open" && !sessionId)
   ) {
     return (
-      <button disabled aria-busy>
-        <svg className="mr-3 size-5 animate-spin" viewBox="0 0 24 24">
+      <button disabled aria-busy className="w-20 h-20 rounded-full bg-gray-300 text-gray-500 cursor-not-allowed flex items-center justify-center">
+        <svg className="w-8 h-8 animate-spin" viewBox="0 0 24 24">
           <path d="M12,4a8,8,0,0,1,7.89,6.7A1.53,1.53,0,0,0,21.38,12h0a1.5,1.5,0,0,0,1.48-1.75,11,11,0,0,0-21.72,0A1.5,1.5,0,0,0,2.62,12h0a1.53,1.53,0,0,0,1.49-1.3A8,8,0,0,1,12,4Z" />
         </svg>
       </button>
@@ -164,8 +173,25 @@ function ActionButton() {
 
   const running = socketState === "open" && sessionId;
   return (
-    <button type="submit" className={running ? "bg-red-500" : undefined}>
-      {running ? "Stop" : "Start"}
+    <button 
+      type="submit" 
+      className={`w-20 h-20 rounded-full flex items-center justify-center transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 ${
+        running 
+          ? "bg-red-500 hover:bg-red-600 text-white animate-pulse" 
+          : "bg-blue-500 hover:bg-blue-600 text-white"
+      }`}
+      title={running ? "Click to stop conversation" : "Click to start conversation"}
+    >
+      {running ? (
+        <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M6 6h12v12H6z" />
+        </svg>
+      ) : (
+        <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z" />
+          <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z" />
+        </svg>
+      )}
     </button>
   );
 }
