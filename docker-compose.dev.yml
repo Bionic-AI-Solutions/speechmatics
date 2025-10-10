@@ -2,34 +2,56 @@ version: '3.8'
 
 services:
   backend:
-    build: ./backend
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
     ports:
       - "8000:8000"
     environment:
-      - API_KEY=${API_KEY}
+      - API_KEY=${API_KEY:-your-speechmatics-api-key}
       - BACKEND_API_KEY=${BACKEND_API_KEY:-your-backend-api-key}
       - DEBUG=true
+      - HOST=0.0.0.0
+      - PORT=8000
     volumes:
       - ./backend:/app
+      - /app/__pycache__
     command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
     networks:
       - app-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   frontend:
-    build: ./frontend
+    build: 
+      context: ./frontend
+      dockerfile: Dockerfile
     ports:
       - "3000:3000"
     environment:
       - NEXT_PUBLIC_API_URL=http://localhost:8000
       - NEXT_PUBLIC_BACKEND_API_KEY=${BACKEND_API_KEY:-your-backend-api-key}
+      - NODE_ENV=development
     volumes:
       - ./frontend:/app
       - /app/node_modules
+      - /app/.next
     command: npm run dev
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     networks:
       - app-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
 networks:
   app-network:

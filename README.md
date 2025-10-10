@@ -42,16 +42,48 @@ BACKEND_API_KEY=your-backend-api-key-here
 
 ### 2. Development Mode
 
+**Option 1: Using the development script (Recommended)**
+```bash
+# On Windows
+dev.bat start
+
+# On Linux/Mac
+chmod +x dev.sh
+./dev.sh start
+```
+
+**Option 2: Using Docker Compose directly**
 ```bash
 # Start both frontend and backend
 docker-compose -f docker-compose.dev.yml up --build
+```
 
-# Or start individually:
-# Backend only
-cd backend && python -m uvicorn main:app --reload
+### Development Commands
 
-# Frontend only
-cd frontend && npm run dev
+The project includes convenient development scripts:
+
+**Windows (dev.bat):**
+```bash
+dev.bat start      # Start development environment
+dev.bat stop       # Stop development environment
+dev.bat restart    # Restart development environment
+dev.bat logs       # View all logs
+dev.bat logs backend  # View backend logs only
+dev.bat status     # Show container status
+dev.bat clean      # Clean up everything
+dev.bat test       # Run all tests
+```
+
+**Linux/Mac (dev.sh):**
+```bash
+./dev.sh start      # Start development environment
+./dev.sh stop       # Stop development environment
+./dev.sh restart    # Restart development environment
+./dev.sh logs       # View all logs
+./dev.sh logs backend  # View backend logs only
+./dev.sh status     # Show container status
+./dev.sh clean      # Clean up everything
+./dev.sh test       # Run all tests
 ```
 
 ### 3. Production Mode
